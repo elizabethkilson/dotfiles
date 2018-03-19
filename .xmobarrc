@@ -1,0 +1,11 @@
+Config { font = "xft:DejaVu Sans Mono:weight=medium:slant=r:size=12:antialias=true,hinting=false"
+       , position = Top
+       , commands = [ Run Network "ens4" ["-S", "true", "-t", "<dev>: rx: <rx> tx: <tx>"] 10
+                    , Run MultiCpu ["-t","<total0>% <total1>% <total2>% <total3>%"] 4
+                    , Run Memory ["-t","Mem: <usedratio>%"] 10
+                    , Run Swap [] 10
+                    , Run Date "%H:%M:%S %a %b %_d %Y" "date" 10
+                    , Run StdinReader
+                    ]
+       , template = "%StdinReader% }{ %multicpu% | %memory% | %swap% | %ens4% | <fc=#ee9a00>%date%</fc>"
+}
