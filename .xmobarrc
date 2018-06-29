@@ -1,11 +1,64 @@
 Config { font = "xft:DejaVu Sans Mono:weight=medium:slant=r:size=12:antialias=true,hinting=false"
        , position = Top
-       , commands = [ Run Network "ens4" ["-S", "true", "-t", "<dev>: rx: <rx> tx: <tx>"] 10
-                    , Run MultiCpu ["-t","<total0>% <total1>% <total2>% <total3>%"] 4
-                    , Run Memory ["-t","Mem: <usedratio>%"] 10
-                    , Run Swap [] 10
-                    , Run Date "%H:%M:%S %a %b %_d %Y" "date" 10
-                    , Run StdinReader
-                    ]
-       , template = "%StdinReader% }{ %multicpu% | %memory% | %swap% | %ens4% | <fc=#ee9a00>%date%</fc>"
+       commands = 
+
+        -- weather monitor
+        [ Run Weather "RJTT" [ "--template", "<skyCondition> | <fc=#4682B4><tempF></fc>°F | <fc=#4682B4><rh></fc>%"
+                             ] 36000
+
+        -- network activity monitor (dynamic interface resolution)
+        , Run DynNetwork     [ "--template" , "<tx>kB/s <rx>kB/s"
+                             , "--Low"      , "1000"       -- units: B/s
+                             , "--High"     , "5000"       -- units: B/s
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+
+        -- cpu activity monitor
+        , Run MultiCpu       [ "--template" , "Cpu: <total0>% <total1>% <total2>% <total3>%"
+                             , "--Low"      , "50"         -- units: %
+                             , "--High"     , "85"         -- units: %
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+
+        -- memory usage monitor
+        , Run Memory         [ "--template" ,"Mem: <usedratio>%"
+                             , "--Low"      , "20"        -- units: %
+                             , "--High"     , "90"        -- units: %
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+
+        -- battery monitor
+        , Run Battery        [ "--template" , "Batt: <acstatus>"
+                             , "--Low"      , "10"        -- units: %
+                             , "--High"     , "80"        -- units: %
+                             , "--low"      , "darkred"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkgreen"
+
+                             , "--" -- battery specific options
+                                       -- discharging status
+                                       , "-o"	, "<left>% (<timeleft>)"
+                                       -- AC "on" status
+                                       , "-O"	, "<fc=#dAA520>Charging</fc>"
+                                       -- charged status
+                                       , "-i"	, "<fc=#006000>Charged</fc>"
+                             ] 50
+
+        -- time and date indicator 
+        --   (%F = y-m-d date, %a = day of week, %T = h:m:s time)
+        , Run Date           "<fc=#ABABAB>%m/%d (%a) %T</fc>" "date" 10
+
+        -- screen status from xmonad
+        , Run StdinReader
+
+
+       ]
+
+       , template = "%StdinReader% }{ %RJTT% | %dynnetwork% | %multicpu% | %memory% | %battery% | <fc=#ee9a00>%date%</fc>"
 }
