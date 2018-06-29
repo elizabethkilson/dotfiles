@@ -35,11 +35,11 @@ import XMonad.Util.WorkspaceCompare
 
 main :: IO ()
 main = do
-  xmproc <- spawnPipe "/usr/bin/xmobar -x 2 ~/.xmobarrc"
+  xmproc <- spawnPipe "/usr/bin/xmobar -x 1 ~/.xmobarrc"
   xmonad $ withNavigation2DConfig def . docks $ defaultConfig
     { manageHook = myManageHook <+> manageHook defaultConfig
     , layoutHook = avoidStruts  $  layoutHook defaultConfig
-    , startupHook = spawn "~/.screenlayout/default.sh"
+    , startupHook = spawn "~/.screenlayout/$(xrandr | grep ' connected' | wc -l).sh"
     , logHook = dynamicLogWithPP xmobarPP
                   { ppOutput = hPutStrLn xmproc
                   , ppTitle = xmobarColor "green" ""
